@@ -5,11 +5,13 @@ import GraphCarousel from '../components/GraphCarousel.jsx';
 import LoginForm from '../components/LoginForm.jsx';
 import RegisterForm from '../components/RegisterForm.jsx';
 import ForgotPasswordModal from '../components/ForgotPasswordModal.jsx';
+import AdminLoginForm from '../components/AdminLoginForm.jsx';
 
 const Auth = () => {
   const navigate = useNavigate();
   const [isLogin, setIsLogin] = React.useState(true);
   const [showForgotPassword, setShowForgotPassword] = React.useState(false);
+  const [showAdminLogin, setShowAdminLogin] = React.useState(false);
 
   // Prevent body scroll when modal is open
   useEffect(() => {
@@ -22,6 +24,11 @@ const Auth = () => {
   const handleLogin = (formData) => {
     console.log('Login', formData);
     // Handle login logic here
+  };
+
+  const handleAdminAccess = () => {
+    // Admin access granted
+    console.log('Admin access granted');
   };
 
   const handleRegister = (formData) => {
@@ -63,7 +70,9 @@ const Auth = () => {
             </button>
 
             <div className="w-full max-w-md">
-              {!showForgotPassword ? (
+              {showAdminLogin ? (
+                <AdminLoginForm onBack={() => setShowAdminLogin(false)} />
+              ) : !showForgotPassword ? (
                 <>
                   {/* Toggle between Login and Register */}
                   <div className="flex gap-4 mb-8">
@@ -94,6 +103,9 @@ const Auth = () => {
                     <LoginForm 
                       onForgotPassword={() => setShowForgotPassword(true)}
                       onSubmit={handleLogin}
+                      onAdminAccess={handleAdminAccess}
+                      showAdminLogin={showAdminLogin}
+                      onShowAdminLogin={() => setShowAdminLogin(true)}
                     />
                   ) : (
                     <RegisterForm onSubmit={handleRegister} />

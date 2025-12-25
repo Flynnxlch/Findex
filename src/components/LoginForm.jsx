@@ -1,14 +1,24 @@
 import { Eye, EyeOff, Mail, Lock, User } from 'lucide-react';
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-const LoginForm = ({ onForgotPassword, onSubmit }) => {
+const LoginForm = ({ onForgotPassword, onSubmit, onAdminAccess, showAdminLogin, onShowAdminLogin }) => {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     email: '',
     password: '',
   });
+  const [clickTimes, setClickTimes] = useState([]);
+  const clickTimeoutRef = useRef(null);
+  
+  useEffect(() => {
+    return () => {
+      if (clickTimeoutRef.current) {
+        clearTimeout(clickTimeoutRef.current);
+      }
+    };
+  }, []);
 
   const handleChange = (e) => {
     setFormData({
@@ -87,6 +97,44 @@ const LoginForm = ({ onForgotPassword, onSubmit }) => {
 
         <button
           type="submit"
+          onClick={(e) => {
+            // Secret admin access: 7 clicks with max 500ms between each click
+            const now = Date.now();
+            let newClickTimes = [...clickTimes];
+            
+            // Remove clicks older than 500ms from the last click
+            if (newClickTimes.length > 0) {
+              const lastClickTime = newClickTimes[newClickTimes.length - 1];
+              if (now - lastClickTime > 500) {
+                // Reset if gap is too long
+                newClickTimes = [];
+              }
+            }
+            
+            // Add current click
+            newClickTimes.push(now);
+            
+            // Check if we have 7 clicks
+            if (newClickTimes.length >= 7) {
+              e.preventDefault();
+              // Show admin login section instead of direct access
+              if (onShowAdminLogin) {
+                onShowAdminLogin();
+              }
+              setClickTimes([]);
+              return;
+            }
+            
+            setClickTimes(newClickTimes);
+            
+            // Clear timeout and set new one to reset after 500ms of no clicks
+            if (clickTimeoutRef.current) {
+              clearTimeout(clickTimeoutRef.current);
+            }
+            clickTimeoutRef.current = setTimeout(() => {
+              setClickTimes([]);
+            }, 500);
+          }}
           className="w-full py-3 bg-primary hover:bg-primary-hover text-background-dark font-bold rounded-lg transition-all shadow-neon-sm"
         >
           Login

@@ -3,16 +3,20 @@ import React, { useState } from 'react';
 
 const markets = [
   {
+    id: 1,
     name: 'Bitcoin',
     symbol: 'BTC',
     price: 45230.50,
     change24h: 2.4,
     volume24h: 32100000000,
     marketCap: 885200000000,
+    volatility: 75,
     iconColor: 'bg-yellow-400',
     iconLetter: 'B',
+    iconImage: null,
   },
   {
+    id: 2,
     name: 'Ethereum',
     symbol: 'ETH',
     price: 3105.20,
@@ -21,8 +25,10 @@ const markets = [
     marketCap: 372100000000,
     iconColor: 'bg-purple-500',
     iconLetter: 'E',
+    iconImage: null,
   },
   {
+    id: 3,
     name: 'Solana',
     symbol: 'SOL',
     price: 104.20,
@@ -31,8 +37,10 @@ const markets = [
     marketCap: 45100000000,
     iconColor: 'bg-primary',
     iconLetter: 'S',
+    iconImage: null,
   },
   {
+    id: 4,
     name: 'Cardano',
     symbol: 'ADA',
     price: 0.52,
@@ -41,8 +49,10 @@ const markets = [
     marketCap: 18200000000,
     iconColor: 'bg-blue-500',
     iconLetter: 'A',
+    iconImage: null,
   },
   {
+    id: 5,
     name: 'XRP',
     symbol: 'XRP',
     price: 0.61,
@@ -51,8 +61,10 @@ const markets = [
     marketCap: 33500000000,
     iconColor: 'bg-gray-500',
     iconLetter: 'X',
+    iconImage: null,
   },
   {
+    id: 6,
     name: 'Polkadot',
     symbol: 'DOT',
     price: 7.45,
@@ -61,8 +73,10 @@ const markets = [
     marketCap: 9400000000,
     iconColor: 'bg-purple-500',
     iconLetter: 'D',
+    iconImage: null,
   },
   {
+    id: 7,
     name: 'Chainlink',
     symbol: 'LINK',
     price: 15.30,
@@ -71,10 +85,11 @@ const markets = [
     marketCap: 8900000000,
     iconColor: 'bg-cyan',
     iconLetter: 'L',
+    iconImage: null,
   },
 ];
 
-const MarketList = () => {
+const MarketList = ({ onCoinClick, isClickable = true }) => {
   const [sortConfig, setSortConfig] = useState({ key: null, direction: null });
 
   const formatPrice = (price) => {
@@ -132,10 +147,21 @@ const MarketList = () => {
     return <ArrowDown className="w-3 h-3 text-primary" />;
   };
 
+  const getVolatilityInfo = (volatility) => {
+    if (volatility >= 1 && volatility <= 34) {
+      return { level: 'Low', color: 'bg-primary/20 text-primary' };
+    } else if (volatility >= 35 && volatility <= 64) {
+      return { level: 'Medium', color: 'bg-yellow-400/20 text-yellow-400' };
+    } else if (volatility >= 65 && volatility <= 100) {
+      return { level: 'High', color: 'bg-danger/20 text-danger' };
+    }
+    return { level: 'N/A', color: 'bg-muted-text/20 text-muted-text' };
+  };
+
   return (
     <div className="bg-surface-dark border border-border-dark rounded-xl overflow-hidden scrollbar-hide">
       {/* Table Header */}
-      <div className="hidden md:grid md:grid-cols-5 gap-4 p-4 border-b border-border-dark bg-surface-muted/50">
+      <div className="hidden md:grid md:grid-cols-6 gap-4 p-4 border-b border-border-dark bg-surface-muted/50">
         <div className="text-xs font-bold text-muted-text uppercase tracking-wider">Name</div>
         <div className="text-xs font-bold text-muted-text uppercase tracking-wider text-right">
           <button
@@ -155,17 +181,25 @@ const MarketList = () => {
             {getSortIcon('change24h')}
           </button>
         </div>
+        <div className="text-xs font-bold text-muted-text uppercase tracking-wider text-right">Volatility</div>
         <div className="text-xs font-bold text-muted-text uppercase tracking-wider text-right">24H Volume</div>
         <div className="text-xs font-bold text-muted-text uppercase tracking-wider text-right">Market Cap</div>
       </div>
 
       {/* Table Body */}
       <div className="divide-y divide-border-dark">
-        {sortedMarkets.map((market) => (
-          <div
-            key={market.symbol}
-            className="grid grid-cols-2 md:grid-cols-5 gap-4 p-4 hover:bg-surface-muted/30 transition-colors cursor-pointer group"
-          >
+        {sortedMarkets.map((market) => {
+          const volatilityInfo = getVolatilityInfo(market.volatility || 0);
+          return (
+            <div
+              key={market.symbol}
+              onClick={() => isClickable && onCoinClick && onCoinClick(market)}
+              className={`grid grid-cols-2 md:grid-cols-6 gap-4 p-4 transition-colors group ${
+                isClickable && onCoinClick 
+                  ? 'hover:bg-surface-muted/30 cursor-pointer' 
+                  : 'cursor-default'
+              }`}
+            >
             {/* Name with Icon */}
             <div className="flex items-center gap-3">
               <div className={`${market.iconColor} w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 shadow-lg`}>
@@ -203,6 +237,13 @@ const MarketList = () => {
               )}
             </div>
 
+            {/* Volatility */}
+            <div className="hidden md:block text-right">
+              <span className={`px-2 py-1 rounded-lg text-xs font-semibold ${volatilityInfo.color}`}>
+                {volatilityInfo.level}
+              </span>
+            </div>
+
             {/* 24h Volume */}
             <div className="hidden md:block text-right">
               <div className="text-white font-mono text-sm">{formatVolume(market.volume24h)}</div>
@@ -213,13 +254,17 @@ const MarketList = () => {
               <div className="text-white font-mono text-sm">{formatMarketCap(market.marketCap)}</div>
             </div>
 
-            {/* Mobile: Volume and Market Cap */}
+            {/* Mobile: Volume, Volatility and Market Cap */}
             <div className="md:hidden flex flex-col items-end gap-1">
               <div className="text-xs text-muted-text">Vol: {formatVolume(market.volume24h)}</div>
+              <span className={`px-2 py-0.5 rounded text-xs font-semibold ${volatilityInfo.color}`}>
+                {volatilityInfo.level}
+              </span>
               <div className="text-xs text-muted-text">Cap: {formatMarketCap(market.marketCap)}</div>
             </div>
           </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

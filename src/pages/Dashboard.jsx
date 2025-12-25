@@ -27,22 +27,26 @@ const Dashboard = () => {
     }
 
     // Listen for dashboard menu change event from profile picture
-    const handleMenuChange = (event) => {
+    const handleDashboardMenuChangeEvent = (event) => {
       setActiveMenu(event.detail);
     };
-    window.addEventListener('dashboardMenuChange', handleMenuChange);
+    window.addEventListener('dashboardMenuChange', handleDashboardMenuChangeEvent);
     
     return () => {
-      window.removeEventListener('dashboardMenuChange', handleMenuChange);
+      window.removeEventListener('dashboardMenuChange', handleDashboardMenuChangeEvent);
     };
   }, [navigate]);
+
+  const handleMenuChange = (menu) => {
+    setActiveMenu(menu);
+  };
 
   const renderContent = () => {
     switch (activeMenu) {
       case 'dashboard':
-        return <DashboardContent activeMenu="dashboard" />;
+        return <DashboardContent activeMenu="dashboard" onMenuChange={handleMenuChange} />;
       case 'coins':
-        return <DashboardContent activeMenu="coins" />;
+        return <DashboardContent activeMenu="coins" onMenuChange={handleMenuChange} />;
       case 'profile':
         return <Profile />;
       case 'settings':

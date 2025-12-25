@@ -109,7 +109,7 @@ const MarketPage = () => {
             </h3>
             <div className="h-px flex-1 bg-gradient-to-r from-transparent via-border-dark to-transparent" />
           </div>
-          <MarketList />
+          <MarketList isClickable={false} />
         </div>
 
         {/* Bottom Stats Summary */}

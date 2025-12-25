@@ -117,7 +117,7 @@ const Markets = () => {
             {markets.map((market, index) => (
               <div
                 key={market.pair}
-                className="grid grid-cols-2 md:grid-cols-7 gap-4 p-4 hover:bg-surface-muted/30 transition-colors cursor-pointer group"
+                className="grid grid-cols-2 md:grid-cols-7 gap-4 p-4 transition-colors group"
               >
                 {/* Pair */}
                 <div className="flex flex-col">

@@ -1,6 +1,6 @@
 import React from 'react';
 
-const RecommendedCoins = () => {
+const RecommendedCoins = ({ onCoinClick }) => {
   const coins = [
     {
       asset: 'BTC/USD',
@@ -62,19 +62,34 @@ const RecommendedCoins = () => {
             </tr>
           </thead>
           <tbody className="text-sm">
-            {coins.map((coin, index) => (
-              <tr key={index} className={index < coins.length - 1 ? 'border-b border-border-dark/50' : ''}>
-                <td className="py-4">
-                  <div className="flex items-center gap-2">
-                    <div className={`${coin.iconColor} w-8 h-8 rounded-full flex items-center justify-center`}>
-                      <span className="text-white font-bold text-xs">{coin.iconLetter}</span>
+            {coins.map((coin, index) => {
+              // Extract coin name and symbol from asset (e.g., 'BTC/USD' -> name: 'Bitcoin', symbol: 'BTC')
+              const coinData = {
+                name: coin.asset.split('/')[0] === 'BTC' ? 'Bitcoin' : coin.asset.split('/')[0] === 'ETH' ? 'Ethereum' : coin.asset.split('/')[0] === 'SOL' ? 'Solana' : coin.asset.split('/')[0],
+                symbol: coin.asset.split('/')[0],
+                price: coin.markPrice,
+                iconColor: coin.iconColor,
+                iconLetter: coin.iconLetter,
+                iconImage: null,
+              };
+
+              return (
+                <tr 
+                  key={index} 
+                  onClick={() => onCoinClick && onCoinClick(coinData)}
+                  className={`${index < coins.length - 1 ? 'border-b border-border-dark/50' : ''} ${onCoinClick ? 'cursor-pointer hover:bg-surface-muted/30 transition-colors' : ''}`}
+                >
+                  <td className="py-4">
+                    <div className="flex items-center gap-2">
+                      <div className={`${coin.iconColor} w-8 h-8 rounded-full flex items-center justify-center`}>
+                        <span className="text-white font-bold text-xs">{coin.iconLetter}</span>
+                      </div>
+                      <div>
+                        <div className="text-white font-semibold">{coin.asset}</div>
+                        <div className="text-xs text-muted-text">{coin.type}</div>
+                      </div>
                     </div>
-                    <div>
-                      <div className="text-white font-semibold">{coin.asset}</div>
-                      <div className="text-xs text-muted-text">{coin.type}</div>
-                    </div>
-                  </div>
-                </td>
+                  </td>
                 <td className="py-4 text-white">{coin.size}</td>
                 <td className="py-4 text-white font-mono">${formatPrice(coin.entryPrice)}</td>
                 <td className="py-4 text-white font-mono">${formatPrice(coin.markPrice)}</td>
@@ -88,7 +103,8 @@ const RecommendedCoins = () => {
                   </button>
                 </td>
               </tr>
-            ))}
+              );
+            })}
           </tbody>
         </table>
       </div>

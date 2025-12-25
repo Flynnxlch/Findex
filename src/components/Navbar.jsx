@@ -1,4 +1,4 @@
-import { CandlestickChart, LogIn, Play } from 'lucide-react';
+import { CandlestickChart, LayoutDashboard, LogIn, Play } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import DashboardButton from './DashboardButton.jsx';
@@ -8,11 +8,14 @@ const Navbar = () => {
   const location = useLocation();
   const isHomePage = location.pathname === '/';
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     const checkLoginStatus = () => {
       const loggedIn = localStorage.getItem('isLoggedIn') === 'true';
+      const admin = localStorage.getItem('isAdmin') === 'true';
       setIsLoggedIn(loggedIn);
+      setIsAdmin(admin);
     };
 
     checkLoginStatus();
@@ -72,12 +75,25 @@ const Navbar = () => {
         <div className="flex items-center gap-3 flex-[0_0_auto] ml-3">
           {isLoggedIn ? (
             <>
-              <div className="hidden sm:flex items-center gap-2 px-4 py-2 bg-surface-dark border border-border-dark rounded-lg">
-                <span className="text-muted-text text-xs">Tokens:</span>
-                <span className="text-white font-mono font-semibold">$124,592.45</span>
-              </div>
-              <ProfilePicture />
-              <DashboardButton />
+              {!isAdmin && (
+                <>
+                  <div className="hidden sm:flex items-center gap-2 px-4 py-2 bg-surface-dark border border-border-dark rounded-lg">
+                    <span className="text-muted-text text-xs">Tokens:</span>
+                    <span className="text-white font-mono font-semibold">$124,592.45</span>
+                  </div>
+                  <ProfilePicture />
+                  <DashboardButton />
+                </>
+              )}
+              {isAdmin && (
+                <Link
+                  to="/admin/dashboard"
+                  className="flex items-center gap-2 px-6 h-10 bg-primary hover:bg-primary-hover text-background-dark text-sm font-bold rounded-full transition-all shadow-neon-sm"
+                >
+                  <LayoutDashboard className="w-4 h-4" />
+                  Admin Panel
+                </Link>
+              )}
             </>
           ) : (
             <>
